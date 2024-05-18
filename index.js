@@ -151,22 +151,50 @@ server.post('/performance/llama', async (req, res) => {
 });
 
 server.post('/performance/mistral', async (req, res) => {
-	console.log('Got the request for mistral');
+	console.log(req.body);
+	const {
+		id,
+		LLMName,
+		modelSelection,
+		topP,
+		topK,
+		minNewTokens,
+		maxNewTokens,
+		temperature,
+		presPenalty,
+		lenPenalty,
+	} = req.body.modelSettings;
+	const { focalCode } = req.body;
+	const parameters = {
+		topK,
+		topP,
+		code: focalCode,
+		minNewTokens,
+		maxNewTokens,
+		temperature,
+		presPenalty,
+		lenPenalty,
+	};
+
 	const startTime = Date.now();
-	const generatedCode = await queryMixtral(req.body);
+	const generatedCode = await queryMixtral(parameters);
 	const endTime = Date.now();
 	const elapsedTime = endTime - startTime;
-	let result = await generatePerformanceData(generatedCode);
+	let performanceResults = await generatePerformanceData(generatedCode);
+
 	logMessage(
 		JSON.stringify({
-			...result,
+			...performanceResults,
 			elapsedTime,
-			model: 'mistral',
+			model: modelSelection,
 			timestamp: Date.now(),
 		}),
 		'performanceLogs'
 	);
-	return res.status(200).send({ ...result, elapsedTime });
+	console.log(performanceResults);
+	return res
+		.status(200)
+		.send({ id, LLMName, ...performanceResults, elapsedTime });
 });
 
 server.listen(PORT, () => {
