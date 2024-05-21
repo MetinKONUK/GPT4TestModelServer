@@ -7,12 +7,18 @@ const queryOpenai = require('./openai');
 const queryGemini = require('./gemini');
 const queryLlama = require('./codellama');
 const queryMixtral = require('./mixtral');
-const { generatePerformanceData, logMessage } = require('./utils');
+const {
+	generatePerformanceData,
+	logMessage,
+	writeResultToExcel,
+} = require('./utils');
 
 server.use(bodyParser.json());
 server.use(cors());
 
 server.post('/isexecutable/', async (req, res) => {});
+
+writeResultToExcel('index.xlsx', { Name: 'Metin', LastName: 'KONUK', Age: 21 });
 
 server.post('/performance/openai', async (req, res) => {
 	const {
@@ -53,8 +59,9 @@ server.post('/performance/openai', async (req, res) => {
 		}),
 		'performanceLogs'
 	);
-
-	res.status(200).send({ id, LLMName, ...performanceResults, elapsedTime });
+	const outputObj = { id, LLMName, ...performanceResults, elapsedTime };
+	writeResultToExcel('logs.xlsx', outputObj);
+	return res.status(200).send(outputObj);
 });
 
 server.post('/performance/gemini', async (req, res) => {
@@ -93,9 +100,9 @@ server.post('/performance/gemini', async (req, res) => {
 		'performanceLogs'
 	);
 
-	return res
-		.status(200)
-		.send({ id, LLMName, ...performanceResults, elapsedTime });
+	const outputObj = { id, LLMName, ...performanceResults, elapsedTime };
+	writeResultToExcel('logs.xlsx', outputObj);
+	return res.status(200).send(outputObj);
 
 	// return res.status(200).send({ ...result, elapsedTime });
 });
@@ -143,10 +150,10 @@ server.post('/performance/llama', async (req, res) => {
 		}),
 		'performanceLogs'
 	);
-	console.log(performanceResults);
-	return res
-		.status(200)
-		.send({ id, LLMName, ...performanceResults, elapsedTime });
+
+	const outputObj = { id, LLMName, ...performanceResults, elapsedTime };
+	writeResultToExcel('logs.xlsx', outputObj);
+	return res.status(200).send(outputObj);
 	// return res.status(200).send({ ...result, elapsedTime });
 });
 
@@ -191,10 +198,9 @@ server.post('/performance/mistral', async (req, res) => {
 		}),
 		'performanceLogs'
 	);
-	console.log(performanceResults);
-	return res
-		.status(200)
-		.send({ id, LLMName, ...performanceResults, elapsedTime });
+	const outputObj = { id, LLMName, ...performanceResults, elapsedTime };
+	writeResultToExcel('logs.xlsx', outputObj);
+	return res.status(200).send(outputObj);
 });
 
 server.listen(PORT, () => {
