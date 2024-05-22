@@ -19,6 +19,49 @@ const codeExtracter = text => {
 	return text.slice(start + 10, start + end + 9);
 };
 
+const executePythonCode = (focalCode, testCode) => {
+	const wholeCode = `${focalCode}\n${testCode}`;
+
+	// 1. Overwrite the Python File:
+	fs.writeFile('index.py', wholeCode, err => {
+		if (err) {
+			console.error('Error overwriting file:', err);
+			throw err; // Immediately throw the error to stop execution
+		}
+	});
+
+	// 2. Execute Python Code & Capture Output:
+	return new Promise((resolve, reject) => {
+		let output = ''; // Store the complete output
+		const options = { mode: 'text' };
+
+		const pythonShell = new PythonShell('index.py', options);
+		pythonShell.on('message', message => {
+			output += message + '\n'; // Accumulate output with newlines
+		});
+
+		pythonShell.on('stderr', err => {
+			output += err + '\n';
+		});
+
+		pythonShell.on('error', err => {
+			output += err + '\n';
+		});
+
+		pythonShell.end(err => {
+			if (err) {
+				output += message + '\n'; // Accumulate output with newlines
+			}
+			resolve({
+				code: '200',
+				executionResult: output.trim().length
+					? output.trim()
+					: 'No output!',
+			}); // Trim trailing newlines
+		});
+	});
+};
+
 const parsePythonCode = code => {
 	return new Promise(async (resolve, reject) => {
 		let pythonFilePath = './pythonScripts/index.py';
@@ -127,4 +170,5 @@ module.exports = {
 	codeExtracter: codeExtracter,
 	logMessage: logMessage,
 	writeResultToExcel,
+	executePythonCode,
 };

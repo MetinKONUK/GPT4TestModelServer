@@ -11,14 +11,48 @@ const {
 	generatePerformanceData,
 	logMessage,
 	writeResultToExcel,
+	executePythonCode,
 } = require('./utils');
 
 server.use(bodyParser.json());
 server.use(cors());
 
-server.post('/isexecutable/', async (req, res) => {});
+server.post('/execute', async (req, res) => {
+	const { focalCode, testFunction } = req.body;
+	const output = await executePythonCode(focalCode, testFunction);
+	return res.status(200).send(output);
+});
 
-writeResultToExcel('index.xlsx', { Name: 'Metin', LastName: 'KONUK', Age: 21 });
+server.post('/generate/openai', async (req, res) => {
+	const {
+		_id,
+		userId,
+		focalCode,
+		modelSelection,
+		temperature,
+		maxLength,
+		stopSequences,
+		topP,
+		frequencyPenalty,
+		presencePenalty,
+	} = req.body;
+
+	const parameters = {
+		focalCode,
+		temperature,
+		maxLength,
+		stopSequences,
+		topP,
+		frequencyPenalty,
+		presencePenalty,
+		modelSelection,
+	};
+	const output = await queryOpenai(parameters);
+
+	return res
+		.status(200)
+		.send({ code: '200', testFunction: output['testFunction'] });
+});
 
 server.post('/performance/openai', async (req, res) => {
 	const {
