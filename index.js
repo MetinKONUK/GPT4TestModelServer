@@ -93,8 +93,15 @@ server.post('/performance/openai', async (req, res) => {
 		}),
 		'performanceLogs'
 	);
-	const outputObj = { id, LLMName, ...performanceResults, elapsedTime };
-	writeResultToExcel('logs.xlsx', outputObj);
+	const outputObj = {
+		id,
+		LLMName,
+		...parameters,
+		...performanceResults,
+		elapsedTime,
+		timestamp: Date.now(),
+	};
+	writeResultToExcel('openai.xlsx', outputObj);
 	return res.status(200).send(outputObj);
 });
 
@@ -134,8 +141,15 @@ server.post('/performance/gemini', async (req, res) => {
 		'performanceLogs'
 	);
 
-	const outputObj = { id, LLMName, ...performanceResults, elapsedTime };
-	writeResultToExcel('logs.xlsx', outputObj);
+	const outputObj = {
+		id,
+		LLMName,
+		...parameters,
+		...performanceResults,
+		elapsedTime,
+		timestamp: Date.now(),
+	};
+	writeResultToExcel('gemini.xlsx', outputObj);
 	return res.status(200).send(outputObj);
 
 	// return res.status(200).send({ ...result, elapsedTime });
@@ -157,6 +171,7 @@ server.post('/performance/llama', async (req, res) => {
 		freqPenalty,
 	} = req.body.modelSettings;
 	const { focalCode } = req.body;
+	console.log(focalCode);
 	const parameters = {
 		topK,
 		topP,
@@ -185,8 +200,15 @@ server.post('/performance/llama', async (req, res) => {
 		'performanceLogs'
 	);
 
-	const outputObj = { id, LLMName, ...performanceResults, elapsedTime };
-	writeResultToExcel('logs.xlsx', outputObj);
+	const outputObj = {
+		id,
+		LLMName,
+		...parameters,
+		...performanceResults,
+		elapsedTime,
+		timestamp: Date.now(),
+	};
+	writeResultToExcel('llama.xlsx', outputObj);
 	return res.status(200).send(outputObj);
 	// return res.status(200).send({ ...result, elapsedTime });
 });
@@ -232,8 +254,15 @@ server.post('/performance/mistral', async (req, res) => {
 		}),
 		'performanceLogs'
 	);
-	const outputObj = { id, LLMName, ...performanceResults, elapsedTime };
-	writeResultToExcel('logs.xlsx', outputObj);
+	const outputObj = {
+		id,
+		LLMName,
+		...parameters,
+		...performanceResults,
+		elapsedTime,
+		timestamp: Date.now(),
+	};
+	writeResultToExcel('mixtral.xlsx', outputObj);
 	return res.status(200).send(outputObj);
 });
 
